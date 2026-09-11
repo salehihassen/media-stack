@@ -1,0 +1,10 @@
+[Unit]
+Description=Encrypted Backblaze B2 backup for media-extract configuration
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/saleh/apps/media-extract
+ExecStart=/home/saleh/apps/media-extract/scripts/backup.sh

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted Backblaze B2 backup for media-extract
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+RandomizedDelaySec=15m
+Unit=media-extract-backup.service
+
+[Install]
+WantedBy=timers.target

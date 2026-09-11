@@ -1,0 +1,9 @@
+.env
+.firecrawl/
+config/**
+data/**
+!config/.gitkeep
+!data/.gitkeep
+backup/restic.env
+backup/restic-password
+backup/logs/
