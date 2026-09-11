@@ -1,0 +1,51 @@
+name: Validate stack
+
+on:
+  pull_request:
+    paths:
+      - '.env.example'
+      - '.gitignore'
+      - '.github/workflows/**'
+      - 'backup/**'
+      - 'compose.yaml'
+      - 'scripts/**'
+      - 'systemd/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.env.example'
+      - '.gitignore'
+      - '.github/workflows/**'
+      - 'backup/**'
+      - 'compose.yaml'
+      - 'scripts/**'
+      - 'systemd/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-stack-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Static validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate Compose and shell contracts
+        run: ./scripts/ci-validate.sh
