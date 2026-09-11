@@ -1,0 +1,6 @@
+# Opt-in workaround for the WH14NS40 in this ASMedia USB enclosure.
+# On another host, replace the serial with the reader's USB ATTRS{serial}.
+# Must run before 60-persistent-storage.rules: its blkid filesystem reads can
+# wedge this reader with some DVDs. Keep device identity / by-id rules enabled.
+# This suppresses filesystem labels/UUIDs, not MakeMKV's direct disc access.
+SUBSYSTEM=="block", KERNEL=="sr*", SUBSYSTEMS=="usb", ATTRS{serial}=="1234567890D6", ENV{UDEV_DISABLE_PERSISTENT_STORAGE_BLKID_FLAG}="1"

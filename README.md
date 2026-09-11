@@ -242,6 +242,82 @@ On a native Linux Docker host, attach the reader, run
 docker compose --profile rip up -d
 ```
 
+Those direct kernel names remain supported, but a USB reader can be assigned a
+different `/dev/sg*` number after a disconnect. For stable host-side names,
+install the included udev rule once:
+
+```sh
+sudo install -m 0644 systemd/99-media-extract-optical.rules \
+  /etc/udev/rules.d/99-media-extract-optical.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger --action=add --subsystem-match=scsi_generic
+./scripts/find-optical-drive.sh
+```
+
+The script will then recommend the drive's existing `/dev/disk/by-id/...` path
+and a serial-based `/dev/makemkv/sg-...` alias. Put those paths in `.env`.
+Compose accepts either stable aliases or direct `/dev/sr*` and `/dev/sg*`
+sources. Its small entrypoint adapter exposes them inside the container under
+the current kernel names that the MakeMKV image discovers through `/sys`.
+The adapter also passes the staged devices' group IDs to the image so the
+unprivileged MakeMKV process can access them; the image's own group discovery
+stats the symlinks rather than their targets.
+
+A stable alias prevents `.env` from drifting, but it cannot preserve an open
+device across a physical USB disconnect. Once the reader reconnects, recreate
+only MakeMKV so Docker resolves the current device numbers:
+
+```sh
+docker compose --profile rip up -d --force-recreate makemkv
+```
+
+For the WH14NS40 / ASMedia reader with USB serial `1234567890D6`, this host
+also needs `systemd/59-media-extract-optical.rules`. Some DVDs trigger a stuck
+host udev `blkid` filesystem probe before MakeMKV can use the drive. The early
+rule disables that probe only for this serial; the separate `99` rule still
+creates the sg alias. On another host, replace the serial with the USB
+`ATTRS{serial}` from `udevadm info --attribute-walk --path=/sys/class/block/sr0`.
+Disabling the probe means filesystem labels/UUIDs may not be discovered;
+device identity aliases and MakeMKV's direct access remain available.
+
+Validate before installing. `udevadm test` can execute probe helpers, so use
+Bubblewrap (`bwrap`) to hide real device nodes during the simulation:
+
+```sh
+udevadm verify systemd/59-media-extract-optical.rules systemd/99-media-extract-optical.rules
+bwrap --ro-bind / / --dev /dev --proc /proc --unshare-pid --die-with-parent \
+  udevadm test -v -D "$PWD/systemd" --action=add /sys/class/block/sr0
+```
+
+Check for `UDEV_DISABLE_PERSISTENT_STORAGE_BLKID_FLAG=1` and
+`GOTO=persistent_storage_blkid_probe_end`. Repeat with `--action=change`, and
+test `/sys/class/scsi_generic/sgN` (using the current matching number) for the
+serial-based alias. This checks rule processing, not physical disc readiness.
+
+```sh
+sudo install -m 0644 systemd/59-media-extract-optical.rules \
+  /etc/udev/rules.d/59-media-extract-optical.rules
+sudo udevadm control --reload-rules
+```
+
+Do not trigger a block-device event or run `blkid /dev/sr0` on a wedged reader.
+Reloading rules cannot cancel an existing blocked probe. After installing and
+verifying the rule, fully power-cycle the reader once and leave it empty.
+Check that relevant udev/SCSI workers have left `D` state and both stable
+aliases resolve, then recreate only MakeMKV with the command above. Wait for
+both devices to pass initialization and `[autodiscripper] Ready.` before
+inserting the DVD once. Monitor MakeMKV logs and the kernel journal for
+`Disc detected`, `Starting disc rip`, and any new `DID_TIME_OUT`. If it wedges
+again, stop retries and investigate the disc/reader/USB bridge combination
+with another reader or direct SATA.
+
+To remove only this workaround, delete
+`/etc/udev/rules.d/59-media-extract-optical.rules` and reload udev rules. To
+remove stable sg naming as well, first switch `.env` back to the current
+kernel device paths, delete `/etc/udev/rules.d/99-media-extract-optical.rules`,
+and reload. Neither file replaces the other; keep only one installed copy of
+each. Avoid triggering events just to clean up aliases while I/O is blocked.
+
 Open MakeMKV at <http://localhost:5800> and rip into `/output`. That is the
 host's `data/makemkv/output/` staging directory; it is intentionally not a
 Jellyfin library. MakeMKV has no write access to `data/media`.
@@ -329,4 +405,4 @@ application secrets (including `.env`) encrypted, while excluding `data/` and
 the B2 bootstrap credentials. See [backup/README.md](backup/README.md) for its
 one-time setup and systemd timer installation.
 
-For future coding-agent sessions, see [CODEX_HANDOFF.md](CODEX_HANDOFF.md).
+For coding-agent guardrails, see [AGENTS.md](AGENTS.md).

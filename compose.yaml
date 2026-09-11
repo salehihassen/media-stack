@@ -133,13 +133,22 @@ services:
       AUTO_DISC_RIPPER_FORCE_UNIQUE_OUTPUT_DIR: "1"
     ports:
       - "127.0.0.1:${MAKEMKV_PORT:-5800}:5800"
+    entrypoint: ["/bin/sh", "/opt/media-extract/makemkv-device-adapter.sh"]
+    command: ["/init"]
     volumes:
       - ./config/makemkv:/config
       - ./data/makemkv/storage:/storage
       - ./data/makemkv/output:/output
+      - ./scripts/makemkv-device-adapter.sh:/opt/media-extract/makemkv-device-adapter.sh:ro
     devices:
-      - ${DVD_DEVICE:-/dev/sr0}:${DVD_DEVICE:-/dev/sr0}
-      - ${DVD_SG_DEVICE:-/dev/sg0}:${DVD_SG_DEVICE:-/dev/sg0}
+      # Stable host aliases are staged at fixed paths. The entrypoint adapter
+      # exposes them under the current kernel names expected by the image.
+      - source: ${DVD_DEVICE:-/dev/sr0}
+        target: /dev/media-extract-sr
+        permissions: rwm
+      - source: ${DVD_SG_DEVICE:-/dev/sg0}
+        target: /dev/media-extract-sg
+        permissions: rwm
     networks:
       - media
 

@@ -36,6 +36,10 @@ assert_json 'Jellyfin must publish only its HTTP port to the LAN' \
   '(.services.jellyfin.ports | length) == 1 and .services.jellyfin.ports[0].host_ip == "0.0.0.0" and .services.jellyfin.ports[0].target == 8096'
 assert_json 'MakeMKV and HandBrake must remain opt-in rip services' \
   '.services.makemkv.profiles == ["rip"] and .services.handbrake.profiles == ["rip"]'
+assert_json 'MakeMKV host devices must use adapter staging paths' \
+  '([.services.makemkv.devices[] | select(.target == "/dev/media-extract-sr")] | length) == 1 and ([.services.makemkv.devices[] | select(.target == "/dev/media-extract-sg")] | length) == 1'
+assert_json 'MakeMKV device adapter must hand off to the image init' \
+  '.services.makemkv.command == ["/init"]'
 assert_json 'Sonarr must read torrent payloads without write access' \
   '([.services.sonarr.volumes[]? | select(.target == "/data/torrent" and .read_only == true)] | length) == 1'
 assert_json 'Radarr must read torrent payloads without write access' \
