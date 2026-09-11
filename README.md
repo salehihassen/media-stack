@@ -5,6 +5,12 @@ qBittorrent behind a Gluetun VPN kill switch, plus optional MakeMKV and
 HandBrake web UIs for disc ripping and transcoding.
 Use torrents and disc copying only where you have the legal right to do so.
 
+## Attribution
+
+I used Codex CLI to generate this stack. Due to similarities I believe this other stack may have inspired this one.
+
+https://github.com/bryce-hoehn/automated-jellyfin-guide
+
 ## Layout
 
 ```text
@@ -325,8 +331,3 @@ one-time setup and systemd timer installation.
 
 For future coding-agent sessions, see [CODEX_HANDOFF.md](CODEX_HANDOFF.md).
 
-## Attribution
-
-I used Codex CLI to generate this stack. Due to similarities I believe this other stack may have inspired this one.
-
-https://github.com/bryce-hoehn/automated-jellyfin-guide
