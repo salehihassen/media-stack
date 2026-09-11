@@ -1,5 +1,5 @@
 [Unit]
-Description=Encrypted Backblaze B2 backup for media-extract configuration
+Description=Encrypted Backblaze B2 backup for Media Stack configuration
 Wants=network-online.target
 After=network-online.target docker.service
 Requires=docker.service

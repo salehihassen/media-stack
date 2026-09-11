@@ -1,4 +1,4 @@
-# Media Extract
+# Media Stack
 
 A portable personal-media stack containing Jellyfin, Radarr, Sonarr, Prowlarr,
 qBittorrent behind a Gluetun VPN kill switch, plus optional MakeMKV and
@@ -330,4 +330,3 @@ the B2 bootstrap credentials. See [backup/README.md](backup/README.md) for its
 one-time setup and systemd timer installation.
 
 For future coding-agent sessions, see [CODEX_HANDOFF.md](CODEX_HANDOFF.md).
-

@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily encrypted Backblaze B2 backup for media-extract
+Description=Daily encrypted Backblaze B2 backup for Media Stack
 
 [Timer]
 OnCalendar=*-*-* 03:15:00

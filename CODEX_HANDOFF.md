@@ -1,4 +1,4 @@
-# Media Extract: Coding-Agent Handoff
+# Media Stack: Coding-Agent Handoff
 
 This is a private, portable Docker Compose stack at
 `/home/saleh/apps/media-extract` on host `c3`. Treat the current checkout and
