@@ -1,5 +1,9 @@
 # Media Stack
 
+My media stack now runs as part of [homelab-infra](https://github.com/salehihassen/homelab-infra). See the [current deployment configuration and setup notes](https://github.com/salehihassen/homelab-infra/tree/main/hosts/server-1/media-extract).
+
+The rest of this README documents the original standalone setup.
+
 A portable personal-media stack containing Jellyfin, Radarr, Sonarr, Prowlarr,
 qBittorrent behind a Gluetun VPN kill switch, plus optional MakeMKV and
 HandBrake web UIs for disc ripping and transcoding.
